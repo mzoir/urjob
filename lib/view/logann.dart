@@ -1,23 +1,20 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:urjob/service/auth.dart';
 import 'package:urjob/view/sign.dart';
 import 'package:urjob/view/wel.dart';
-import 'package:urjob/view/welu.dart';
-import 'forpass.dart';
-import 'home_page.dart';
-import '../main.dart';
-import 'logann.dart';
 
-class UrjobPage extends StatefulWidget {
-  const UrjobPage({super.key});
+import '../service/auth.dart';
+
+class LoginPosterPage extends StatefulWidget {
+  const LoginPosterPage({super.key});
 
   @override
-  State<UrjobPage> createState() => _UrjobPageState();
+  State<LoginPosterPage> createState() => _LoginPosterPageState();
 }
 
-class _UrjobPageState extends State<UrjobPage> {
+class _LoginPosterPageState extends State<LoginPosterPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -40,8 +37,8 @@ class _UrjobPageState extends State<UrjobPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          onPressed: () => SystemNavigator.pop(),
-          icon: const Icon(Icons.exit_to_app, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios_sharp, color: Colors.black),
         ),
         elevation: 0,
       ),
@@ -56,7 +53,7 @@ class _UrjobPageState extends State<UrjobPage> {
                 Image.asset("images/j.jpg", height: height * 0.25, width: width * 0.8),
                 SizedBox(height: height * 0.03),
                 const Text(
-                  'Login as worker',
+                  'Login as poster',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
                 ),
                 SizedBox(height: height * 0.02),
@@ -84,39 +81,42 @@ class _UrjobPageState extends State<UrjobPage> {
                 SizedBox(
                   width: double.infinity,
                   height: height * 0.06,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        final auth = Provider.of<FireAuth>(context, listen: false);
-                        try {
-                          await auth.logIn(_emailController.text, _passwordController.text);
-                          final verify1 = auth.auth.currentUser!.emailVerified;
+                  child: ElevatedButton(onPressed: () async {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      final auth = Provider.of<FireAuth>(context, listen: false);
+                      try {
+                        await auth.logIn(_emailController.text, _passwordController.text);
+                        final verify = auth.auth.currentUser!.emailVerified;
 
-
-                          // ✅ Check role
+                        if (verify) {
                           final uid = auth.auth.currentUser!.uid;
-                          String? role =  await auth.getUserRole(uid);
+                          String? role = await auth.getUserRole(uid);
 
-                          if (role == 'Worker') {
-                            Navigator.push(
+                          if (role == 'Poster') {
+                            Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (context) => WelcomeU()),
+                              MaterialPageRoute(builder: (_) =>  WelcomeScreen()),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("This login is for Worker accounts only")),
+                              const SnackBar(content: Text("This login is for Poster accounts only")),
                             );
                             await auth.logout();
                           }
-
-                        } catch (e) {
+                        } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Login failed: $e")),
+                            const SnackBar(content: Text("Verify your email")),
                           );
+                          await auth.auth.currentUser?.sendEmailVerification();
+                          await auth.logout();
                         }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Login failed: $e")),
+                        );
                       }
-                    },
-
+                    }
+                  },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -126,21 +126,9 @@ class _UrjobPageState extends State<UrjobPage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>  ForgetPasswordPage()),
-                    );
+                    // Navigate to forgot password page
                   },
                   child: const Text('Forgot password?', style: TextStyle(color: Colors.black)),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>  LoginPosterPage()),
-                    );
-                  },
-                  child: const Text('Log as poster', style: TextStyle(color: Colors.red)),
                 ),
                 SizedBox(height: height * 0.0),
                 SizedBox(
@@ -150,9 +138,8 @@ class _UrjobPageState extends State<UrjobPage> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) =>  SignPage(),
-                      ));
-                      // Navigate to sign up page
+                        MaterialPageRoute(builder: (_) => const SignPage()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey[200],
@@ -166,7 +153,7 @@ class _UrjobPageState extends State<UrjobPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) =>  WelcomeScreen()),
+                      MaterialPageRoute(builder: (context) => WelcomeScreen()),
                     );
                   },
                   child: const Text('StartwithoutLog', style: TextStyle(color: Colors.black)),

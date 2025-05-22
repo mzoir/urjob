@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 
 class FireAuth extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   FirebaseAuth get auth => _auth;
   String _good = "";
@@ -58,4 +59,9 @@ class FireAuth extends ChangeNotifier {
       rethrow; // Rethrow the error to be caught by the UI
     }
   }
+  Future<String?> getUserRole(String uid) async {
+    final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    return doc.data()?['Name'];  // or 'role' depending on your field name
+  }
+
 }

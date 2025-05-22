@@ -1,0 +1,162 @@
+{
+  "project_info": {
+    "project_number": "20098166270",
+    "project_id": "plmo-c5ddd",
+    "storage_bucket": "plmo-c5ddd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20098166270:android:96f90ea9697c48fe6964af",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV5PY1EFNs448uJ7blPkNt60nzVynNBic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20098166270:android:db1ea64bff203fa56964af",
+        "android_client_info": {
+          "package_name": "com.example.eat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV5PY1EFNs448uJ7blPkNt60nzVynNBic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20098166270:android:70678523c625ef7b6964af",
+        "android_client_info": {
+          "package_name": "com.example.flutfoot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV5PY1EFNs448uJ7blPkNt60nzVynNBic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20098166270:android:a0191fe7de4094466964af",
+        "android_client_info": {
+          "package_name": "com.example.hereuraxi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV5PY1EFNs448uJ7blPkNt60nzVynNBic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20098166270:android:028e31a88bb405e36964af",
+        "android_client_info": {
+          "package_name": "com.example.untitled2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV5PY1EFNs448uJ7blPkNt60nzVynNBic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20098166270:android:d135fb04d1f279906964af",
+        "android_client_info": {
+          "package_name": "com.example.urjob"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV5PY1EFNs448uJ7blPkNt60nzVynNBic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20098166270:android:5a75927f5b71ec936964af",
+        "android_client_info": {
+          "package_name": "com.zakariaetv.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV5PY1EFNs448uJ7blPkNt60nzVynNBic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20098166270:android:9de2bf6bf568c4bc6964af",
+        "android_client_info": {
+          "package_name": "com.zakariaetv.zakariaetv"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV5PY1EFNs448uJ7blPkNt60nzVynNBic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
