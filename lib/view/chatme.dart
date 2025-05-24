@@ -4,9 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatPage extends StatefulWidget {
   final String receiverId;
-  final String? id; // Message ID (nullable)
+  final String? id;
 
-  ChatPage({required this.receiverId, this.id});
+  const ChatPage({super.key, required this.receiverId, this.id});
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -30,104 +30,167 @@ class _ChatPageState extends State<ChatPage> {
       loggedInUser = user;
     }
   }
-  void sendMessage() async {
-    if (_controller.text.isNotEmpty) {
-      // Use the provided ID or generate a new one if it's null or empty
-      String messageId = widget.id?.isNotEmpty == true ? widget.id! : _firestore.collection('messages').doc().id;
 
-      try {
-        DocumentSnapshot messageDoc = await _firestore.collection('messages').doc(messageId).get();
+  Widget buildColoredLines(String message) {
+    List<String> lines = message.split('\n');
+    List<Color> colors = [Colors.black87, Colors.blue];
 
-        if (!messageDoc.exists) {
-          final user = _auth.currentUser;
-          // Create a new message document if it doesn't exist
-          await _firestore.collection('messages').doc(messageId).set({
-            'text': "${_controller.text}: ${user?.email}",
-            'sender': loggedInUser?.email,
-            'receiver': widget.receiverId,
-            'id': messageId,
-            'timestamp': FieldValue.serverTimestamp(),
-          });
-        } else {
-          // If the document exists, retrieve the existing text and append the new message
-          String existingText = messageDoc['text'];
-          String updatedText = existingText + '\n' + _controller.text; // Append new message
-          final user = _auth.currentUser;
-          await _firestore.collection('messages').doc(messageId).set({
-            'text': "${updatedText}: ${user?.email}",
-            'sender': loggedInUser?.email,
-            'receiver': widget.receiverId,
-            'id': messageId,
-            'timestamp': FieldValue.serverTimestamp(),
-          }, SetOptions(merge: true)); // Merge to keep existing messages
-        }
-
-        _controller.clear();
-      } catch (e) {
-        print('Error sending message: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send message: $e')),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(lines.length, (index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Text(
+            lines[index],
+            style: TextStyle(
+              color: colors[index % colors.length],
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         );
-      }
-    } else {
+      }),
+    );
+  }
+
+  void sendMessage() async {
+    if (_controller.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Message cannot be empty.')),
       );
+      return;
+    }
+
+    String messageId = widget.id?.isNotEmpty == true
+        ? widget.id!
+        : _firestore.collection('messages').doc().id;
+
+    try {
+      DocumentSnapshot messageDoc =
+      await _firestore.collection('messages').doc(messageId).get();
+
+      final user = _auth.currentUser;
+      String currentText = _controller.text.trim();
+
+      if (!messageDoc.exists) {
+        await _firestore.collection('messages').doc(messageId).set({
+          'text': "$currentText: ${user?.email}",
+          'sender': loggedInUser?.email,
+          'receiver': widget.receiverId,
+          'id': messageId,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      } else {
+        String existingText = messageDoc['text'];
+        String updatedText = "$existingText\n$currentText";
+        await _firestore.collection('messages').doc(messageId).set({
+          'text': "$updatedText: ${user?.email}",
+          'sender': loggedInUser?.email,
+          'receiver': widget.receiverId,
+          'id': messageId,
+          'timestamp': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
+
+      _controller.clear();
+    } catch (e) {
+      print('Error sending message: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: Text('Chat with ${widget.receiverId}'),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+        elevation: 3,
       ),
       body: Column(
         children: [
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: _firestore.collection('messages').orderBy('timestamp').snapshots(),
+              stream: _firestore
+                  .collection('messages')
+                  .orderBy('timestamp')
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 final messages = snapshot.data!.docs;
-
-                // Filter messages based on the provided ID
-                final filteredMessages = messages.where((message) {
-                  return message['id'] == (widget.id ?? '');
-                }).toList();
+                final filteredMessages = messages
+                    .where((message) => message['id'] == (widget.id ?? ''))
+                    .toList();
 
                 if (filteredMessages.isEmpty) {
-                  return Center(child: Text('No messages available.'));
+                  return const Center(child: Text('No messages available.'));
                 }
 
-                List<Widget> messageWidgets = filteredMessages.map((message) {
-                  final messageText = message['text'];
-
-                  return ListTile(
-                    title: Text("${messageText}"),
-                  );
-                }).toList();
-
-                return ListView(children: messageWidgets);
+                return ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: filteredMessages.length,
+                  itemBuilder: (context, index) {
+                    final message = filteredMessages[index];
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          )
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      child: buildColoredLines(message['text']),
+                    );
+                  },
+                );
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 4,
+                  offset: Offset(0, -2),
+                )
+              ],
+            ),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: InputDecoration(hintText: 'Enter your message...'),
+                    decoration: InputDecoration(
+                      hintText: 'Enter your message...',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16),
+                    ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: sendMessage,
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  backgroundColor: Colors.blueAccent,
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    onPressed: sendMessage,
+                  ),
                 ),
               ],
             ),

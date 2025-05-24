@@ -22,12 +22,15 @@ class _SignPageState extends State<SignPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _userController = TextEditingController();
+
+  final _nameController= TextEditingController();
   String category = "Worker";
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _userController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -66,9 +69,20 @@ class _SignPageState extends State<SignPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+
                 Image.asset("images/2.jpg",height: 200,width: 300, ),
                 SizedBox(height: 30,),
                 const Text('Sign Up', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
+                SizedBox(height: 15,),
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  validator: (value) =>
+                  (value == null || value.isEmpty) ? 'Please enter your email' : null,
+                ),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   value: category,
@@ -117,9 +131,10 @@ class _SignPageState extends State<SignPage> {
                     if (_formKey.currentState?.validate() ?? false) {
                       final email = _emailController.text;
                       final password = _passwordController.text;
+                      final name = _nameController.text;
                       final auth = Provider.of<FireAuth>(context, listen: false);
                       try {
-                        await auth.signUp(email, password,category);
+                        await auth.signUp(email, password,category,name);
                         auth.auth.currentUser?.sendEmailVerification();
                         auth.logout();
                         ScaffoldMessenger.of(context).showSnackBar(

@@ -13,7 +13,7 @@ class FireAuth extends ChangeNotifier {
   String? get uid => _uid;
   String get good => _good;
 
-  Future<void> signUp(String email, String password,String username) async {
+  Future<void> signUp(String email, String password,String username, String name) async {
     try {
       final UserCredential userCredential = await auth
           .createUserWithEmailAndPassword(
@@ -25,7 +25,7 @@ class FireAuth extends ChangeNotifier {
         await FirebaseFirestore.instance
             .collection('users')
             .doc(uid)
-            .set({'Name': username});}
+            .set({'Name': username,'username': name});}
       notifyListeners();
     } catch (e) {
       // Handle the error (e.g., log it)
@@ -64,4 +64,8 @@ class FireAuth extends ChangeNotifier {
     return doc.data()?['Name'];  // or 'role' depending on your field name
   }
 
+  Future<String?> getUsername(String uid) async {
+    final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    return doc.data()?['userame'];  // or 'role' depending on your field name
+  }
 }

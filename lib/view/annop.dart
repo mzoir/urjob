@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+
+import '../service/auth.dart';
 
 class Annocepro extends StatefulWidget {
   const Annocepro({super.key});
@@ -21,6 +24,9 @@ class _AnnoceproState extends State<Annocepro> {
 
   Future<void> postAnnonce() async {
     try {
+      final auth = Provider.of<FireAuth>(context, listen: false);
+      final uid = auth.auth.currentUser!.uid;
+      String? role =  await auth.getUserRole(uid);
       await annonces.add({
         'title': _titleController.text,
         'description': _descController.text,
