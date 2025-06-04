@@ -20,7 +20,7 @@ class _HomeState extends State<Home> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const AnnoncesPage(), // Firestore feed
+    const AnnoncesPage(),
     MessagesListPage(),
     const Center(child: Text('Messages Page')),
   ];
@@ -35,7 +35,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     final auth = Provider.of<FireAuth>(context, listen: false);
     return Scaffold(
-      backgroundColor: Colors.lightBlue[50],
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text('Urjob'),
         centerTitle: true,
@@ -55,15 +55,14 @@ class _HomeState extends State<Home> {
             const ListTile(leading: Icon(Icons.favorite), title: Text('Favorites')),
             ListTile(
               leading: const Icon(Icons.exit_to_app),
-              title: const Text('log out'),
-              onTap: () async  {
-                auth.logout();
+              title: const Text('Log out'),
+              onTap: () async {
+                await auth.logout();
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => UrjobPage()),
                 );
               },
-
-            )
+            ),
           ],
         ),
       ),
@@ -121,63 +120,86 @@ class AnnoncesPage extends StatelessWidget {
             final email = annonceData['userId'].toString();
 
             return Card(
-              color: Colors.white,
-              elevation: 4,
+              elevation: 5,
               margin: const EdgeInsets.only(bottom: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      title,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                    ),
                     const SizedBox(height: 8),
-                    Text(desc),
-                    const SizedBox(height:4 ),
-                    Text('📍 $location'),
+                    Text(desc, style: const TextStyle(fontSize: 16)),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on, size: 18, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Text(location, style: const TextStyle(fontSize: 14, color: Colors.red)),
+                      ],
+                    ),
                     const SizedBox(height: 8),
-                    Text('💰 Budget: $budget MAD'),
+                    Row(
+                      children: [
+                        const Icon(Icons.attach_money, size: 18, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Text('Budget: $budget MAD', style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold)),
+                      ],
+                    ),
                     const SizedBox(height: 8),
                     Chip(
-                      label: Text(category),
-                      backgroundColor: Colors.deepPurple.shade100,
-                    ),TextButton(
-                      onPressed: () async {
-                        final currentUser = FirebaseAuth.instance.currentUser;
-                        final senderId = currentUser?.email;
-                        final receiverId = email;
+                      label: Text(category, style: const TextStyle(color: Colors.white)),
+                      backgroundColor: Colors.deepPurple,
+                    ),
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          final currentUser = FirebaseAuth.instance.currentUser;
+                          final senderId = currentUser?.email;
+                          final receiverId = email;
 
-                        if (senderId == null || receiverId == null) return;
+                          if (senderId == null || receiverId == null) return;
 
-                        // Create a consistent chatId
-                        final chatId = [senderId, receiverId]..sort();
-                        final combinedId = chatId.join('_');
+                          final chatId = [senderId, receiverId]..sort();
+                          final combinedId = chatId.join('_');
 
-                        // Check if conversation exists
-                        final docRef = FirebaseFirestore.instance.collection('conversations').doc(combinedId);
-                        final doc = await docRef.get();
+                          final docRef = FirebaseFirestore.instance.collection('conversations').doc(combinedId);
+                          final doc = await docRef.get();
 
-                        if (!doc.exists) {
-                          // Create a conversation document if it doesn't exist
-                          await docRef.set({
-                            'users': [senderId, receiverId],
-                            'lastMessage': '',
-                            'timestamp': FieldValue.serverTimestamp(),
-                          });
-                        }
+                          if (!doc.exists) {
+                            await docRef.set({
+                              'users': [senderId, receiverId],
+                              'lastMessage': '',
+                              'timestamp': FieldValue.serverTimestamp(),
+                            });
+                          }
 
-                        // Navigate to chat page
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatPage(receiverId: receiverId, id: combinedId),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatPage(receiverId: receiverId, id: combinedId),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.send),
+                        label: const Text("Contact"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        );
-                      },
-                      child: const Text('Contact Us'),
-                    )
-
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -21,7 +21,7 @@ class _UrjobPageState extends State<UrjobPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _nameController= TextEditingController();
+  final _nameController = TextEditingController();
 
   @override
   void dispose() {
@@ -38,51 +38,100 @@ class _UrjobPageState extends State<UrjobPage> {
     final height = size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF0F4F8),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF1D3557), // Deep modern blue
         leading: IconButton(
           onPressed: () => SystemNavigator.pop(),
-          icon: const Icon(Icons.exit_to_app, color: Colors.black),
+          icon: const Icon(Icons.exit_to_app, color: Colors.white),
         ),
         elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Worker Login',
+          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+        padding: EdgeInsets.symmetric(horizontal: width * 0.06),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: height * 0.02),
+                SizedBox(height: height * 0.04),
+                // KEEP THE IMAGE
                 Image.asset("images/j.jpg", height: height * 0.25, width: width * 0.8),
-                SizedBox(height: height * 0.03),
-                const Text(
-                  'Login as worker',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                SizedBox(height: height * 0.04),
+
+                Text(
+                  'Welcome Back!',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1D3557),
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                SizedBox(height: height * 0.02),
+                const SizedBox(height: 8),
+                Text(
+                  'Login to continue',
+                  style: TextStyle(fontSize: 16, color: Colors.deepPurple),
+                ),
+                SizedBox(height: height * 0.04),
+
+                // Email Field
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    labelStyle: const TextStyle(color: Color(0xFF1D3557)),
+                    hintText: 'Enter your email',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFF1D3557)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFF457B9D), width: 2),
+                    ),
+                    prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF1D3557)),
+                    filled: true,
+                    fillColor: Colors.white,
                   ),
-                  validator: (value) =>
-                  (value == null || value.isEmpty) ? 'Please enter your email' : null,
+                  validator: (value) => (value == null || value.isEmpty) ? 'Please enter your email' : null,
                 ),
-                SizedBox(height: height * 0.015),
+                SizedBox(height: height * 0.025),
+
+                // Password Field
                 TextFormField(
                   controller: _passwordController,
+                  obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    labelStyle: const TextStyle(color: Color(0xFF1D3557)),
+                    hintText: 'Enter your password',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFF1D3557)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFF457B9D), width: 2),
+                    ),
+                    prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF1D3557)),
+                    filled: true,
+                    fillColor: Colors.white,
                   ),
-                  obscureText: true,
-                  validator: (value) =>
-                  (value == null || value.isEmpty) ? 'Please enter your password' : null,
+                  validator: (value) => (value == null || value.isEmpty) ? 'Please enter your password' : null,
                 ),
-                SizedBox(height: height * 0.03),
+                SizedBox(height: height * 0.04),
+
+                // Login Button
                 SizedBox(
                   width: double.infinity,
                   height: height * 0.06,
@@ -92,25 +141,17 @@ class _UrjobPageState extends State<UrjobPage> {
                         final auth = Provider.of<FireAuth>(context, listen: false);
                         try {
                           await auth.logIn(_emailController.text, _passwordController.text);
-                          final verify1 = auth.auth.currentUser!.emailVerified;
-
-
-                          // ✅ Check role
                           final uid = auth.auth.currentUser!.uid;
-                          String? role =  await auth.getUserRole(uid);
+                          String? role = await auth.getUserRole(uid);
 
                           if (role == 'Worker') {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => WelcomeU()),
-                            );
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => WelcomeU()));
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text("This login is for Worker accounts only")),
                             );
                             await auth.logout();
                           }
-
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Login failed: $e")),
@@ -118,61 +159,40 @@ class _UrjobPageState extends State<UrjobPage> {
                         }
                       }
                     },
-
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      backgroundColor: const Color(0xFF1D3557),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text('Log in', style: TextStyle(color: Colors.white)),
+                    child: const Text('Log in', style: TextStyle(color: Colors.white, fontSize: 16)),
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>  ForgetPasswordPage()),
-                    );
-                  },
-                  child: const Text('Forgot password?', style: TextStyle(color: Colors.black)),
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ForgetPasswordPage())),
+                  child: const Text('Forgot password?', style: TextStyle(color: Color(0xFF1D3557))),
                 ),
                 TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>  LoginPosterPage()),
-                    );
-                  },
-                  child: const Text('Log as poster', style: TextStyle(color: Colors.red)),
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => LoginPosterPage())),
+                  child: const Text('Log as poster', style: TextStyle(color: Colors.redAccent)),
                 ),
-                SizedBox(height: height * 0.0),
+                SizedBox(height: height * 0.01),
+
+                // Create New Account
                 SizedBox(
                   width: double.infinity,
                   height: height * 0.06,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) =>  SignPage(),
-                      ));
-                      // Navigate to sign up page
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[200],
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SignPage())),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF1D3557)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text('Create new account', style: TextStyle(color: Colors.blue)),
+                    child: const Text('Create new account', style: TextStyle(color: Color(0xFF1D3557), fontSize: 16)),
                   ),
                 ),
-                SizedBox(height: height * 0.01),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>  WelcomeScreen()),
-                    );
-                  },
-                  child: const Text('StartwithoutLog', style: TextStyle(color: Colors.black)),
-                ),
+
+                SizedBox(height: height * 0.02),
               ],
             ),
           ),
